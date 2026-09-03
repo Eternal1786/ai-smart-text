@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Text Studio</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 650px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        h2 { color: #38bdf8; font-size: 20px; }
+        .user-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        
+        /* User Profile & Separate Credit Badge */
+        .user-status { font-size: 13px; color: #38bdf8; background: #0f172a; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; gap: 6px; }
+        .credit-badge { background: #f59e0b; color: #000; font-weight: bold; padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap; }
+        .vip-badge { background: #10b981; color: #fff; font-weight: bold; padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap; }
+        
+        .lang-box { display: flex; align-items: center; gap: 6px; background: #0f172a; border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; }
+        .lang-box select { background: transparent; color: #38bdf8; border: none; font-weight: bold; cursor: pointer; outline: none; }
+        
+        input, select, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+        textarea { height: 120px; resize: vertical; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        button { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; width: 100%; }
+        button:hover { background: #0369a1; }
+        .btn-auth { background: #e11d48; }
+        .btn-auth:hover { background: #be123c; }
+        .btn-vip { background: #f59e0b; color: #000; font-weight: bold; }
+        .btn-vip:hover { background: #d97706; color: #fff; }
+
+        .out { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 8px; min-height: 100px; margin-top: 15px; white-space: pre-wrap; word-break: break-word; }
+        .status { font-size: 12px; color: #94a3b8; text-align: right; margin-top: 5px; }
+
+        .pass-wrapper { position: relative; width: 100%; }
+        .pass-wrapper input { padding-right: 40px; }
+        .toggle-eye { position: absolute; right: 12px; top: 12px; cursor: pointer; user-select: none; font-size: 16px; opacity: 0.7; }
+        .toggle-eye:hover { opacity: 1; }
+
+        /* Modals & Close Button */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; padding: 20px; z-index: 99; }
+        .modal-content { background: #1e293b; padding: 25px; border-radius: 12px; max-width: 420px; width: 100%; color: #cbd5e1; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h3 { color: #38bdf8; font-size: 18px; margin: 0; }
+        .close-x { color: #94a3b8; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .close-x:hover { color: #ef4444; }
+
+        .switch-link { text-align: center; margin-top: 15px; font-size: 13px; }
+        .switch-link a { color: #38bdf8; text-decoration: none; cursor: pointer; }
+        .switch-link a:hover { text-decoration: underline; }
+
+        .pricing-box { background: #0f172a; border: 2px solid #f59e0b; border-radius: 10px; padding: 15px; text-align: center; margin: 15px 0; }
+        .price { font-size: 24px; color: #f59e0b; font-weight: bold; margin: 8px 0; }
+
+        footer { margin-top: 25px; text-align: center; font-size: 13px; color: #64748b; }
+        footer a { color: #38bdf8; text-decoration: none; margin: 0 8px; cursor: pointer; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="top-bar">
+        <h2 id="ui-title">AI Smart Text Studio</h2>
+        <div class="user-nav">
+            <div id="userInfo" style="display:none;" class="user-status">
+                👤 <span id="userNameDisplay"></span>
+                <a onclick="logout()" style="color:#ef4444; margin-left:6px; cursor:pointer; font-weight:bold;">[X]</a>
+            </div>
+            <span id="userCreditDisplay" style="display:none;" class="credit-badge">3 Free Left</span>
+            
+            <button id="authBtn" onclick="openModal('modal-login')" style="width:auto; padding:6px 12px; font-size:13px;">Login / Register</button>
+            <div class="lang-box">
+                <span>🌐</span>
+                <select id="uiLang" onchange="changeUILanguage()">
+                    <option value="en" selected>EN</option>
+                    <option value="az">AZ</option>
+                    <option value="tr">TR</option>
+                    <option value="ru">RU</option>
+                    <option value="ar">AR</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <input type="password" id="apiKey" placeholder="OpenAI API Key (sk-...)" />
+
+    <textarea id="srcText" placeholder="Enter or paste your text here..." onclick="checkAuth()"></textarea>
+
+    <div class="grid">
+        <select id="task" onclick="checkAuth()">
+            <option value="fix" id="opt-fix">Fix Grammar & Style</option>
+            <option value="rephrase" id="opt-rephrase">Rewrite (Professional)</option>
+            <option value="summarize" id="opt-summarize">Summarize</option>
+            <option value="translate" id="opt-translate">Translate</option>
+        </select>
+
+        <select id="targetLang" onclick="checkAuth()">
+            <option value="English">English</option>
+            <option value="Azerbaijani">Azerbaijani</option>
+            <option value="Turkish">Turkish</option>
+            <option value="Russian">Russian</option>
+            <option value="Arabic">Arabic</option>
+        </select>
+    </div>
+
+    <button onclick="processAI()" id="btn-run">Run AI Assistant</button>
+
+    <div class="out" id="output">Result will appear here...</div>
+    <div class="status" id="charCnt">Characters: 0</div>
+</div>
+
+<footer>
+    &copy; 2026 AI Smart Text Studio. All rights reserved. <br>
+    <a onclick="openModal('modal-about')" id="link-about">About Us</a> | 
+    <a onclick="openModal('modal-terms')" id="link-terms">Terms of Service</a> | 
+    <a onclick="openModal('modal-privacy')" id="link-privacy">Privacy Policy</a>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="modal-login">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="lbl-login-title">Login</h3>
+            <span class="close-x" onclick="closeModal('modal-login')">&times;</span>
+        </div>
+        <input type="email" id="loginEmail" placeholder="Email" />
+        <div class="pass-wrapper">
+            <input type="password" id="loginPass" placeholder="Password" />
+            <span class="toggle-eye" onclick="togglePass('loginPass', this)">👁️</span>
+        </div>
+        <button onclick="handleLogin()" id="btn-login-submit">Login ➔</button>
+        <div class="switch-link">
+            <span id="lbl-no-acc">Don't have an account?</span> <a onclick="switchModal('modal-login', 'modal-register')" id="lnk-reg">Register</a>
+        </div>
+    </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal" id="modal-register">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="lbl-reg-title">Register (Get 3 Free Credits)</h3>
+            <span class="close-x" onclick="closeModal('modal-register')">&times;</span>
+        </div>
+        <input type="email" id="regEmail" placeholder="Email" />
+        <input type="text" id="regUser" placeholder="Username" />
+        <div class="pass-wrapper">
+            <input type="password" id="regPass" placeholder="Password" />
+            <span class="toggle-eye" onclick="togglePass('regPass', this)">👁️</span>
+        </div>
+        <div class="pass-wrapper">
+            <input type="password" id="regPassConfirm" placeholder="Confirm Password" />
+            <span class="toggle-eye" onclick="togglePass('regPassConfirm', this)">👁️</span>
+        </div>
+        <button class="btn-auth" onclick="handleRegister()" id="btn-reg-submit">Register ➔</button>
+        <div class="switch-link">
+            <span id="lbl-has-acc">Already have an account?</span> <a onclick="switchModal('modal-register', 'modal-login')" id="lnk-log">Login</a>
+        </div>
+    </div>
+</div>
+
+<!-- VIP PAYWALL MODAL -->
+<div class="modal" id="modal-vip">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="lbl-vip-title">👑 Upgrade to VIP Pro</h3>
+            <span class="close-x" onclick="closeModal('modal-vip')">&times;</span>
+        </div>
+        <p style="text-align:center;" id="lbl-vip-desc">Your 3 free usage credits are finished! Upgrade to Pro for unlimited AI access.</p>
+        
+        <div class="pricing-box">
+            <h4>VIP PRO PLAN</h4>
+            <div class="price">$9.99 / mo</div>
+            <ul style="text-align:left; padding-left:20px; line-height:1.8;" id="lbl-vip-list">
+                <li>⚡ Unlimited AI Requests</li>
+                <li>🚀 Faster Response Speed</li>
+                <li>🌐 All Languages Supported</li>
+            </ul>
+        </div>
+
+        <button class="btn-vip" onclick="redirectToPayment()" id="btn-vip-buy">💳 Buy VIP Pro ($9.99)</button>
+    </div>
+</div>
+
+<!-- LEGAL MODALS -->
+<div class="modal" id="modal-about">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>About Us</h3>
+            <span class="close-x" onclick="closeModal('modal-about')">&times;</span>
+        </div>
+        <p>AI Smart Text Studio provides automated text processing powered by advanced AI technology.</p>
+    </div>
+</div>
+
+<div class="modal" id="modal-terms">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Terms of Service</h3>
+            <span class="close-x" onclick="closeModal('modal-terms')">&times;</span>
+        </div>
+        <p>By using this website, you agree to process text legally and comply with policies.</p>
+    </div>
+</div>
+
+<div class="modal" id="modal-privacy">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Privacy Policy</h3>
+            <span class="close-x" onclick="closeModal('modal-privacy')">&times;</span>
+        </div>
+        <p>Your privacy is important. Submissions are processed temporarily and never saved.</p>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let credits = 3;
+    let isVip = false;
+
+    const translations = {
+        en: {
+            title: "AI Smart Text Studio", placeholder: "Enter or paste your text here...", fix: "Fix Grammar & Style", rephrase: "Rewrite (Professional)", summarize: "Summarize", translate: "Translate", btn: "Run AI Assistant", out: "Result will appear here...", char: "Characters: ", keyAlert: "Please enter your OpenAI API Key!", textAlert: "Please enter some text!", processing: "Processing...",
+            authBtn: "Login / Register", loginTitle: "Login", regTitle: "Register (Get 3 Free Credits)", emailPh: "Email", userPh: "Username", passPh: "Password", passConfPh: "Confirm Password", loginSub: "Login ➔", regSub: "Register ➔", noAcc: "Don't have an account?", hasAcc: "Already have an account?", regLnk: "Register", logLnk: "Login", freeLeft: " Free Left",
+            vipTitle: "👑 Upgrade to VIP Pro", vipDesc: "Your 3 free usage credits are finished! Upgrade to Pro for unlimited AI access.", vipBuy: "💳 Buy VIP Pro ($9.99)"
+        },
+        az: {
+            title: "AI Smart Mətn Studiyası", placeholder: "Mətni bura daxil edin...", fix: "Qrammatika Düzəlt", rephrase: "Yenidən Yaz (Peşəkar)", summarize: "Xülasə Et", translate: "Tərcümə Et", btn: "İcra Et", out: "Nəticə bura çıxacaq...", char: "Simvol: ", keyAlert: "Zəhmət olmasa API Key daxil edin!", textAlert: "Zəhmət olmasa mətn yazın!", processing: "Gözləyin...",
+            authBtn: "Giriş / Qeydiyyat", loginTitle: "Giriş Yap", regTitle: "Qeydiyyat (3 Pulsuz Kredit Kazan)", emailPh: "E-poçt", userPh: "İstifadəçi Adı", passPh: "Şifrə", passConfPh: "Şifrə (Təkrar)", loginSub: "Giriş Yap ➔", regSub: "Qeydiyyatdan Keç ➔", noAcc: "Hesabın yoxdur?", hasAcc: "Artıq hesabın var?", regLnk: "Qeydiyyat", logLnk: "Giriş Yap", freeLeft: " Pulsuz Qaldı",
+            vipTitle: "👑 VIP Pro Pakete Keç", vipDesc: "3 Pulsuz istifadə haqqınız bitdi! Limitsiz istifadə üçün Pro pakete keçin.", vipBuy: "💳 VIP Paket Al ($9.99)"
+        },
+        tr: {
+            title: "AI Akıllı Metin Stüdyosu", placeholder: "Metninizi buraya girin...", fix: "Dilbilgisini Düzelt", rephrase: "Yeniden Yaz (Profesyonel)", summarize: "Özetle", translate: "Çevir", btn: "Çalıştır", out: "Sonuç burada görünecek...", char: "Karakter: ", keyAlert: "Lütfen API Anahtarınızı girin!", textAlert: "Lütfen bir metin girin!", processing: "İşleniyor...",
+            authBtn: "Giriş Yap / Kayıt Ol", loginTitle: "Giriş Yap", regTitle: "Kayıt Ol (3 Ücretsiz Hak Kazan)", emailPh: "E-posta", userPh: "Kullanıcı Adı", passPh: "Şifre", passConfPh: "Şifre (Tekrar)", loginSub: "Giriş Yap ➔", regSub: "Kayıt Ol ➔", noAcc: "Hesabın yok mu?", hasAcc: "Zaten hesabın var mı?", regLnk: "Kayıt Ol", logLnk: "Giriş Yap", freeLeft: " Ücretsiz Kaldı",
+            vipTitle: "👑 VIP Pro Pakete Geç", vipDesc: "3 Ücretsiz kullanım hakkınız bitti! Sınırsız AI kullanımı için Pro pakete geçin.", vipBuy: "💳 VIP Paketi Satın Al ($9.99)"
+        },
+        ru: {
+            title: "AI Умная Текстовая Студия", placeholder: "Введите текст здесь...", fix: "Исправить грамматику", rephrase: "Перефразировать", summarize: "Сделать резюме", translate: "Перевести", btn: "Запустить AI", out: "Результат появится здесь...", char: "Символов: ", keyAlert: "Пожалуйста, введите API Key!", textAlert: "Пожалуйста, введите текст!", processing: "Обработка...",
+            authBtn: "Войти / Регистрация", loginTitle: "Вход", regTitle: "Регистрация (3 бесплатные попытки)", emailPh: "Эл. почта", userPh: "Имя пользователя", passPh: "Пароль", passConfPh: "Подтвердите пароль", loginSub: "Войти ➔", regSub: "Зарегистрироваться ➔", noAcc: "Нет аккаунта?", hasAcc: "Уже есть аккаунт?", regLnk: "Зарегистрироваться", logLnk: "Войти", freeLeft: " осталось",
+            vipTitle: "👑 Перейти на VIP Pro", vipDesc: "Ваши 3 бесплатные попытки закончились! Перейдите на Pro для безлимитного доступа.", vipBuy: "💳 Купить VIP Pro ($9.99)"
+        },
+        ar: {
+            title: "استوديو النصوص الذكي", placeholder: "أدخل النص هنا...", fix: "تصحيح القواعد", rephrase: "إعادة صياغة احترافية", summarize: "تلخيص", translate: "ترجمة", btn: "تشغيل الذكاء الاصطناعي", out: "ستظهر النتيجة هنا...", char: "الحروف: ", keyAlert: "يرجى إدخال مفتاح API!", textAlert: "يرجى كتابة نص!", processing: "جاري المعالجة...",
+            authBtn: "تسجيل الدخول / تسجيل", loginTitle: "تسجيل الدخول", regTitle: "تسجيل (احصل على 3 رصيد مجاني)", emailPh: "البريد الإلكتروني", userPh: "اسم المستخدم", passPh: "كلمة المرور", passConfPh: "تأكيد كلمة المرور", loginSub: "دخول ➔", regSub: "تسجيل ➔", noAcc: "ليس لديك حساب؟", hasAcc: "لديك حساب بالفعل؟", regLnk: "تسجيل", logLnk: "دخول", freeLeft: " متبقي مجاناً",
+            vipTitle: "👑 الترقية إلى VIP Pro", vipDesc: "لقد انتهت رصيدك المجاني (3)! ترقية إلى Pro للاستخدام غير المحدود.", vipBuy: "💳 شراء VIP Pro ($9.99)"
+        }
+    };
+
+    const srcText = document.getElementById('srcText');
+    srcText.addEventListener('input', updateCharCount);
+
+    function updateCharCount() {
+        const lang = document.getElementById('uiLang').value;
+        document.getElementById('charCnt').innerText = translations[lang].char + srcText.value.length;
+    }
+
+    function changeUILanguage() {
+        const lang = document.getElementById('uiLang').value;
+        const t = translations[lang];
+
+        document.getElementById('ui-title').innerText = t.title;
+        document.getElementById('srcText').placeholder = t.placeholder;
+        document.getElementById('opt-fix').innerText = t.fix;
+        document.getElementById('opt-rephrase').innerText = t.rephrase;
+        document.getElementById('opt-summarize').innerText = t.summarize;
+        document.getElementById('opt-translate').innerText = t.translate;
+        document.getElementById('btn-run').innerText = t.btn;
+        document.getElementById('output').innerText = t.out;
+        
+        document.getElementById('authBtn').innerText = t.authBtn;
+        document.getElementById('lbl-login-title').innerText = t.loginTitle;
+        document.getElementById('lbl-reg-title').innerText = t.regTitle;
+        document.getElementById('loginEmail').placeholder = t.emailPh;
+        document.getElementById('regEmail').placeholder = t.emailPh;
+        document.getElementById('regUser').placeholder = t.userPh;
+        document.getElementById('loginPass').placeholder = t.passPh;
+        document.getElementById('regPass').placeholder = t.passPh;
+        document.getElementById('regPassConfirm').placeholder = t.passConfPh;
+        document.getElementById('btn-login-submit').innerText = t.loginSub;
+        document.getElementById('btn-reg-submit').innerText = t.regSub;
+        document.getElementById('lbl-no-acc').innerText = t.noAcc;
+        document.getElementById('lbl-has-acc').innerText = t.hasAcc;
+        document.getElementById('lnk-reg').innerText = t.regLnk;
+        document.getElementById('lnk-log').innerText = t.logLnk;
+
+        document.getElementById('lbl-vip-title').innerText = t.vipTitle;
+        document.getElementById('lbl-vip-desc').innerText = t.vipDesc;
+        document.getElementById('btn-vip-buy').innerText = t.vipBuy;
+
+        updateCharCount();
+        updateCreditUI();
+    }
+
+    function checkAuth() {
+        if (!currentUser) {
+            openModal('modal-register');
+            return false;
+        }
+        return true;
+    }
+
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    function updateCreditUI() {
+        const lang = document.getElementById('uiLang').value;
+        const t = translations[lang];
+        const badge = document.getElementById('userCreditDisplay');
+        
+        if (isVip) {
+            badge.innerText = "👑 VIP PRO";
+            badge.className = "vip-badge";
+        } else {
+            badge.innerText = `${credits}` + t.freeLeft;
+            badge.className = "credit-badge";
+        }
+    }
+
+    function togglePass(inputId, eyeEl) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeEl.innerText = '🙈';
+        } else {
+            input.type = 'password';
+            eyeEl.innerText = '👁️';
+        }
+    }
+
+    function handleRegister() {
+        const email = document.getElementById('regEmail').value.trim();
+        const user = document.getElementById('regUser').value.trim();
+        const pass = document.getElementById('regPass').value;
+        const passConf = document.getElementById('regPassConfirm').value;
+
+        if (!email || !user || !pass) return alert('Lütfen tüm alanları doldurun!');
+        if (!validateEmail(email)) return alert('Lütfen geçerli bir e-posta adresi girin!');
+        if (user.length < 3) return alert('Kullanıcı adı en az 3 karakter olmalıdır!');
+        if (pass.length < 6) return alert('Şifre en az 6 karakter olmalıdır!');
+        if (pass !== passConf) return alert('Şifreler eşleşmiyor!');
+
+        currentUser = user;
+        credits = 3;
+        isVip = false;
+        onLoginSuccess();
+        closeModal('modal-register');
+    }
+
+    function handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value;
+
+        if (!email || !pass) return alert('Lütfen tüm alanları doldurun!');
+        if (!validateEmail(email)) return alert('Lütfen geçerli bir e-posta adresi girin!');
+
+        currentUser = email.split('@')[0];
+        credits = 3;
+        isVip = false;
+        onLoginSuccess();
+        closeModal('modal-login');
+    }
+
+    function onLoginSuccess() {
+        document.getElementById('authBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+        document.getElementById('userCreditDisplay').style.display = 'inline-block';
+        document.getElementById('userNameDisplay').innerText = currentUser;
+        updateCreditUI();
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('authBtn').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('userCreditDisplay').style.display = 'none';
+    }
+
+    function redirectToPayment() {
+        alert("Ödeme sayfasına yönlendiriliyorsunuz...");
+    }
+
+    async function processAI() {
+        if (!checkAuth()) return;
+
+        if (!isVip && credits <= 0) {
+            openModal('modal-vip');
+            return;
+        }
+
+        const uiLang = document.getElementById('uiLang').value;
+        const t = translations[uiLang];
+
+        const key = document.getElementById('apiKey').value.trim();
+        const text = srcText.value.trim();
+        const task = document.getElementById('task').value;
+        const targetLang = document.getElementById('targetLang').value;
+        const out = document.getElementById('output');
+
+        if (!key) return alert(t.keyAlert);
+        if (!text) return alert(t.textAlert);
+
+        out.innerText = t.processing;
+
+        let prompt = `Task: ${task}. Target Language: ${targetLang}.\nText: ${text}`;
+        if(task === 'fix') prompt = `Correct grammar and style of this text. Respond in ${targetLang}: ${text}`;
+        if(task === 'rephrase') prompt = `Rewrite this professionally in ${targetLang}: ${text}`;
+        if(task === 'summarize') prompt = `Summarize this text in 2-3 sentences in ${targetLang}: ${text}`;
+        if(task === 'translate') prompt = `Translate this text directly to ${targetLang}: ${text}`;
+
+        try {
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${key}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: prompt }],
+                    temperature: 0.3
+                })
+            });
+
+            const data = await res.json();
+            if (data.error) {
+                out.innerText = 'Error: ' + data.error.message;
+            } else {
+                out.innerText = data.choices[0].message.content.trim();
+                if (!isVip) {
+                    credits--;
+                    updateCreditUI();
+                }
+            }
+        } catch (e) {
+            out.innerText = 'Error processing request. Check your API key and connection.';
+        }
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function switchModal(from, to) { closeModal(from); openModal(to); }
+</script>
+
+</body>
+</html>
