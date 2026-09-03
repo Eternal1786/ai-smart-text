@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Smart Text Studio</title>
     <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function(){
-            emailjs.init("YOUR_PUBLIC_KEY");
-        })();
-    </script>
+   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+    (function() {
+        emailjs.init("1iGmdEg9qGNqiWX-j");
+    })();
+
+    function sendWelcomeEmail(userEmail) {
+        emailjs.send("service_bratvabratza", "template_ou53l5g", {
+            to_email: userEmail
+        });
+    }
+    function sendResetCode(userEmail, code) {
+    return emailjs.send("service_bratvabratza", "template_fj6iyhw", {
+        to_email: userEmail,
+        reset_code: code
+    });
+}
+</script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #0f172a; color: #f8fafc; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
@@ -405,7 +417,7 @@
 
         generatedResetCode = Math.floor(100000 + Math.random() * 900000);
         
-        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        emailjs.send("service_bratvabratza", "template_fj6iyhw", {
             to_email: email,
             reset_code: generatedResetCode
         }).then(function() {
@@ -435,7 +447,7 @@
         const user = document.getElementById('regUser').value.trim();
         const pass = document.getElementById('regPass').value;
         const passConf = document.getElementById('regPassConfirm').value;
-
+        
         if (!email || !user || !pass) return alert('Düzgün doldurun!');
         if (!validateEmail(email)) return alert('Keçərli bir E-poçt ünvanı daxil edin!');
         if (pass.length < 6) return alert('Şifrə ən azı 6 simvol olmalıdır!');
@@ -446,6 +458,7 @@
         isVip = false;
 
         onLoginSuccess();
+        sendWelcomeEmail(email);
         closeModal('modal-register');
     }
 
