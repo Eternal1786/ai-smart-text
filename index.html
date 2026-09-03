@@ -23,6 +23,43 @@
     });
 }
 </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBSh8wwFcHM5p-hjL5vGWL4RD2QNutSSmo",
+    authDomain: "ai-smart-text.firebaseapp.com",
+    projectId: "ai-smart-text",
+    storageBucket: "ai-smart-text.firebasestorage.app",
+    messagingSenderId: "637902856108",
+    appId: "1:637902856108:web:07a315d780cf0daee2e409",
+    measurementId: "G-CWQGKVNCMC"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  function handleGoogleAuth() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        currentUser = user.displayName || user.email.split('@')[0];
+        credits = 3;
+        isVip = false;
+        
+        onLoginSuccess();
+        closeModal('modal-login');
+        closeModal('modal-register');
+        alert("Google ilə uğurla giriş edildi: " + currentUser);
+      })
+      .catch((error) => {
+        console.error("Google Auth Error:", error);
+        alert("Giriş zamanı xəta baş verdi: " + error.message);
+      });
+  }
+</script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #0f172a; color: #f8fafc; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
