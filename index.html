@@ -445,8 +445,24 @@
     }
 
     function handleGoogleAuth() {
-        alert("Google Authentication Firebase qoşulduqdan sonra tam aktiv olacaq.");
-    }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      currentUser = user.displayName || user.email.split('@')[0];
+      credits = 3;
+      isVip = false;
+
+      onLoginSuccess();
+      closeModal('modal-login');
+      closeModal('modal-register');
+      alert("Google ilə uğurla giriş edildi: " + currentUser);
+    })
+    .catch((error) => {
+      console.error("Google Auth Error:", error);
+      alert("Giriş zamanı xəta baş verdi: " + error.message);
+    });
+}
 
     function sendResetCode() {
         const email = document.getElementById('resetEmail').value.trim();
