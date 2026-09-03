@@ -4,57 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Smart Text Studio</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("YOUR_PUBLIC_KEY");
+        })();
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #0f172a; color: #f8fafc; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
         .card { background: #1e293b; padding: 25px; border-radius: 16px; width: 100%; max-width: 650px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
-        
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         h2 { color: #38bdf8; font-size: 20px; }
         .user-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        
-        /* User Profile & Separate Credit Badge */
         .user-status { font-size: 13px; color: #38bdf8; background: #0f172a; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; display: flex; align-items: center; gap: 6px; }
         .credit-badge { background: #f59e0b; color: #000; font-weight: bold; padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap; }
         .vip-badge { background: #10b981; color: #fff; font-weight: bold; padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap; }
-        
         .lang-box { display: flex; align-items: center; gap: 6px; background: #0f172a; border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; }
         .lang-box select { background: transparent; color: #38bdf8; border: none; font-weight: bold; cursor: pointer; outline: none; }
-        
         input, select, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
         textarea { height: 120px; resize: vertical; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
         button { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; width: 100%; }
         button:hover { background: #0369a1; }
         .btn-auth { background: #e11d48; }
         .btn-auth:hover { background: #be123c; }
+        .btn-google { background: #ffffff; color: #000; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; border: 1px solid #cbd5e1; font-size: 14px; }
+        .btn-google:hover { background: #f1f5f9; }
         .btn-vip { background: #f59e0b; color: #000; font-weight: bold; }
         .btn-vip:hover { background: #d97706; color: #fff; }
-
         .out { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 8px; min-height: 100px; margin-top: 15px; white-space: pre-wrap; word-break: break-word; }
         .status { font-size: 12px; color: #94a3b8; text-align: right; margin-top: 5px; }
-
         .pass-wrapper { position: relative; width: 100%; }
         .pass-wrapper input { padding-right: 40px; }
         .toggle-eye { position: absolute; right: 12px; top: 12px; cursor: pointer; user-select: none; font-size: 16px; opacity: 0.7; }
         .toggle-eye:hover { opacity: 1; }
-
-        /* Modals & Close Button */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; padding: 20px; z-index: 99; }
         .modal-content { background: #1e293b; padding: 25px; border-radius: 12px; max-width: 420px; width: 100%; color: #cbd5e1; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); position: relative; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-header h3 { color: #38bdf8; font-size: 18px; margin: 0; }
         .close-x { color: #94a3b8; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .close-x:hover { color: #ef4444; }
-
-        .switch-link { text-align: center; margin-top: 15px; font-size: 13px; }
+        .switch-link { text-align: center; margin-top: 10px; font-size: 13px; }
         .switch-link a { color: #38bdf8; text-decoration: none; cursor: pointer; }
         .switch-link a:hover { text-decoration: underline; }
-
         .pricing-box { background: #0f172a; border: 2px solid #f59e0b; border-radius: 10px; padding: 15px; text-align: center; margin: 15px 0; }
         .price { font-size: 24px; color: #f59e0b; font-weight: bold; margin: 8px 0; }
-
         footer { margin-top: 25px; text-align: center; font-size: 13px; color: #64748b; }
         footer a { color: #38bdf8; text-decoration: none; margin: 0 8px; cursor: pointer; }
         footer a:hover { text-decoration: underline; }
@@ -71,7 +67,6 @@
                 <a onclick="logout()" style="color:#ef4444; margin-left:6px; cursor:pointer; font-weight:bold;">[X]</a>
             </div>
             <span id="userCreditDisplay" style="display:none;" class="credit-badge">3 Free Left</span>
-            
             <button id="authBtn" onclick="openModal('modal-login')" style="width:auto; padding:6px 12px; font-size:13px;">Login / Register</button>
             <div class="lang-box">
                 <span>🌐</span>
@@ -86,8 +81,8 @@
         </div>
     </div>
     
+    <!-- API KEY FIELD -->
     <input type="password" id="apiKey" placeholder="OpenAI API Key (sk-...)" />
-
     <textarea id="srcText" placeholder="Enter or paste your text here..." onclick="checkAuth()"></textarea>
 
     <div class="grid">
@@ -108,7 +103,6 @@
     </div>
 
     <button onclick="processAI()" id="btn-run">Run AI Assistant</button>
-
     <div class="out" id="output">Result will appear here...</div>
     <div class="status" id="charCnt">Characters: 0</div>
 </div>
@@ -127,10 +121,17 @@
             <h3 id="lbl-login-title">Login</h3>
             <span class="close-x" onclick="closeModal('modal-login')">&times;</span>
         </div>
+        <button class="btn-google" onclick="handleGoogleAuth()">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google"> <span class="lbl-btn-google">Login with Google</span>
+        </button>
+        <div style="text-align:center; margin-bottom:10px; color:#64748b;" class="lbl-or">— or —</div>
         <input type="email" id="loginEmail" placeholder="Email" />
         <div class="pass-wrapper">
             <input type="password" id="loginPass" placeholder="Password" />
             <span class="toggle-eye" onclick="togglePass('loginPass', this)">👁️</span>
+        </div>
+        <div style="text-align:right; margin-bottom:10px;">
+            <a onclick="switchModal('modal-login', 'modal-reset')" style="color:#38bdf8; font-size:12px; cursor:pointer;" id="lnk-forgot">Forgot Password?</a>
         </div>
         <button onclick="handleLogin()" id="btn-login-submit">Login ➔</button>
         <div class="switch-link">
@@ -146,6 +147,10 @@
             <h3 id="lbl-reg-title">Register (Get 3 Free Credits)</h3>
             <span class="close-x" onclick="closeModal('modal-register')">&times;</span>
         </div>
+        <button class="btn-google" onclick="handleGoogleAuth()">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" alt="Google"> <span class="lbl-btn-google-reg">Register with Google</span>
+        </button>
+        <div style="text-align:center; margin-bottom:10px; color:#64748b;" class="lbl-or">— or —</div>
         <input type="email" id="regEmail" placeholder="Email" />
         <input type="text" id="regUser" placeholder="Username" />
         <div class="pass-wrapper">
@@ -163,6 +168,39 @@
     </div>
 </div>
 
+<!-- PASSWORD RESET MODAL -->
+<div class="modal" id="modal-reset">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="lbl-reset-title">Reset Password</h3>
+            <span class="close-x" onclick="closeModal('modal-reset')">&times;</span>
+        </div>
+        <!-- Mərhələ 1: Kod Göndərmə -->
+        <div id="reset-step-1">
+            <p style="margin-bottom:12px; font-size:13px;" id="lbl-reset-desc">Enter your registered email address. We will send you a verification code.</p>
+            <input type="email" id="resetEmail" placeholder="Your Email address" />
+            <button onclick="sendResetCode()" id="btn-send-code">Send Verification Code ➔</button>
+        </div>
+        <!-- Mərhələ 2: Kodu Yoxlamaq və Yeni Şifrə -->
+        <div id="reset-step-2" style="display:none;">
+            <p style="margin-bottom:12px; font-size:13px; color:#10b981;" id="lbl-reset-code-desc">Enter the code sent to your email and your new password:</p>
+            <input type="text" id="resetCode" placeholder="6-digit code (e.g. 482910)" />
+            <div class="pass-wrapper">
+                <input type="password" id="newPass" placeholder="New Password" />
+                <span class="toggle-eye" onclick="togglePass('newPass', this)">👁️</span>
+            </div>
+            <div class="pass-wrapper">
+                <input type="password" id="newPassConfirm" placeholder="Confirm New Password" />
+                <span class="toggle-eye" onclick="togglePass('newPassConfirm', this)">👁️</span>
+            </div>
+            <button onclick="confirmNewPassword()" class="btn-vip" id="btn-update-pass">Update Password ➔</button>
+        </div>
+        <div class="switch-link">
+            <a onclick="switchModal('modal-reset', 'modal-login')" id="lnk-back-login">Back to Login</a>
+        </div>
+    </div>
+</div>
+
 <!-- VIP PAYWALL MODAL -->
 <div class="modal" id="modal-vip">
     <div class="modal-content">
@@ -171,17 +209,15 @@
             <span class="close-x" onclick="closeModal('modal-vip')">&times;</span>
         </div>
         <p style="text-align:center;" id="lbl-vip-desc">Your 3 free usage credits are finished! Upgrade to Pro for unlimited AI access.</p>
-        
         <div class="pricing-box">
             <h4>VIP PRO PLAN</h4>
             <div class="price">$9.99 / mo</div>
             <ul style="text-align:left; padding-left:20px; line-height:1.8;" id="lbl-vip-list">
-                <li>⚡ Unlimited AI Requests</li>
-                <li>🚀 Faster Response Speed</li>
-                <li>🌐 All Languages Supported</li>
+                <li id="lbl-feat-1">⚡ Unlimited AI Requests</li>
+                <li id="lbl-feat-2">🚀 Faster Response Speed</li>
+                <li id="lbl-feat-3">🌐 All Languages Supported</li>
             </ul>
         </div>
-
         <button class="btn-vip" onclick="redirectToPayment()" id="btn-vip-buy">💳 Buy VIP Pro ($9.99)</button>
     </div>
 </div>
@@ -190,30 +226,30 @@
 <div class="modal" id="modal-about">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>About Us</h3>
+            <h3 id="lbl-about-title">About Us</h3>
             <span class="close-x" onclick="closeModal('modal-about')">&times;</span>
         </div>
-        <p>AI Smart Text Studio provides automated text processing powered by advanced AI technology.</p>
+        <p id="lbl-about-body">AI Smart Text Studio provides automated text processing powered by advanced AI technology.</p>
     </div>
 </div>
 
 <div class="modal" id="modal-terms">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Terms of Service</h3>
+            <h3 id="lbl-terms-title">Terms of Service</h3>
             <span class="close-x" onclick="closeModal('modal-terms')">&times;</span>
         </div>
-        <p>By using this website, you agree to process text legally and comply with policies.</p>
+        <p id="lbl-terms-body">By using this website, you agree to process text legally and comply with policies.</p>
     </div>
 </div>
 
 <div class="modal" id="modal-privacy">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Privacy Policy</h3>
+            <h3 id="lbl-privacy-title">Privacy Policy</h3>
             <span class="close-x" onclick="closeModal('modal-privacy')">&times;</span>
         </div>
-        <p>Your privacy is important. Submissions are processed temporarily and never saved.</p>
+        <p id="lbl-privacy-body">Your privacy is important. Submissions are processed temporarily and never saved.</p>
     </div>
 </div>
 
@@ -221,32 +257,28 @@
     let currentUser = null;
     let credits = 3;
     let isVip = false;
+    let generatedResetCode = null;
 
     const translations = {
         en: {
-            title: "AI Smart Text Studio", placeholder: "Enter or paste your text here...", fix: "Fix Grammar & Style", rephrase: "Rewrite (Professional)", summarize: "Summarize", translate: "Translate", btn: "Run AI Assistant", out: "Result will appear here...", char: "Characters: ", keyAlert: "Please enter your OpenAI API Key!", textAlert: "Please enter some text!", processing: "Processing...",
-            authBtn: "Login / Register", loginTitle: "Login", regTitle: "Register (Get 3 Free Credits)", emailPh: "Email", userPh: "Username", passPh: "Password", passConfPh: "Confirm Password", loginSub: "Login ➔", regSub: "Register ➔", noAcc: "Don't have an account?", hasAcc: "Already have an account?", regLnk: "Register", logLnk: "Login", freeLeft: " Free Left",
-            vipTitle: "👑 Upgrade to VIP Pro", vipDesc: "Your 3 free usage credits are finished! Upgrade to Pro for unlimited AI access.", vipBuy: "💳 Buy VIP Pro ($9.99)"
+            title: "AI Smart Text Studio", placeholder: "Enter or paste your text here...", fix: "Fix Grammar & Style", rephrase: "Rewrite (Professional)", summarize: "Summarize", translate: "Translate", btn: "Run AI Assistant", out: "Result will appear here...", char: "Characters: ", keyAlert: "Please enter your OpenAI API Key!", textAlert: "Please enter some text!", processing: "Processing...", authBtn: "Login / Register", loginTitle: "Login", regTitle: "Register (Get 3 Free Credits)", emailPh: "Email", userPh: "Username", passPh: "Password", passConfPh: "Confirm Password", loginSub: "Login ➔", regSub: "Register ➔", noAcc: "Don't have an account?", hasAcc: "Already have an account?", regLnk: "Register", logLnk: "Login", freeLeft: " Free Left", vipTitle: "👑 Upgrade to VIP Pro", vipDesc: "Your 3 free usage credits are finished! Upgrade to Pro for unlimited AI access.", vipBuy: "💳 Buy VIP Pro ($9.99)",
+            forgotLnk: "Forgot Password?", googleBtn: "Login with Google", googleRegBtn: "Register with Google", or: "— or —", resetTitle: "Reset Password", resetDesc: "Enter your registered email address. We will send you a verification code.", resetEmailPh: "Your Email address", btnSendCode: "Send Verification Code ➔", resetCodeDesc: "Enter the code sent to your email and your new password:", resetCodePh: "6-digit code (e.g. 482910)", newPassPh: "New Password", newPassConfPh: "Confirm New Password", btnUpdatePass: "Update Password ➔", backLogin: "Back to Login", feat1: "⚡ Unlimited AI Requests", feat2: "🚀 Faster Response Speed", feat3: "🌐 All Languages Supported", aboutTitle: "About Us", aboutBody: "AI Smart Text Studio provides automated text processing powered by advanced AI technology.", termsTitle: "Terms of Service", termsBody: "By using this website, you agree to process text legally and comply with policies.", privacyTitle: "Privacy Policy", privacyBody: "Your privacy is important. Submissions are processed temporarily and never saved.", linkAbout: "About Us", linkTerms: "Terms of Service", linkPrivacy: "Privacy Policy"
         },
         az: {
-            title: "AI Smart Mətn Studiyası", placeholder: "Mətni bura daxil edin...", fix: "Qrammatika Düzəlt", rephrase: "Yenidən Yaz (Peşəkar)", summarize: "Xülasə Et", translate: "Tərcümə Et", btn: "İcra Et", out: "Nəticə bura çıxacaq...", char: "Simvol: ", keyAlert: "Zəhmət olmasa API Key daxil edin!", textAlert: "Zəhmət olmasa mətn yazın!", processing: "Gözləyin...",
-            authBtn: "Giriş / Qeydiyyat", loginTitle: "Giriş Yap", regTitle: "Qeydiyyat (3 Pulsuz Kredit Kazan)", emailPh: "E-poçt", userPh: "İstifadəçi Adı", passPh: "Şifrə", passConfPh: "Şifrə (Təkrar)", loginSub: "Giriş Yap ➔", regSub: "Qeydiyyatdan Keç ➔", noAcc: "Hesabın yoxdur?", hasAcc: "Artıq hesabın var?", regLnk: "Qeydiyyat", logLnk: "Giriş Yap", freeLeft: " Pulsuz Qaldı",
-            vipTitle: "👑 VIP Pro Pakete Keç", vipDesc: "3 Pulsuz istifadə haqqınız bitdi! Limitsiz istifadə üçün Pro pakete keçin.", vipBuy: "💳 VIP Paket Al ($9.99)"
+            title: "AI Smart Mətn Studiyası", placeholder: "Mətni bura daxil edin...", fix: "Qrammatika Düzəlt", rephrase: "Yenidən Yaz (Peşəkar)", summarize: "Xülasə Et", translate: "Tərcümə Et", btn: "İcra Et", out: "Nəticə bura çıxacaq...", char: "Simvol: ", keyAlert: "Zəhmət olmasa API Key daxil edin!", textAlert: "Zəhmət olmasa mətn yazın!", processing: "Gözləyin...", authBtn: "Giriş / Qeydiyyat", loginTitle: "Giriş Yap", regTitle: "Qeydiyyat (3 Pulsuz Kredit Qazan)", emailPh: "E-poçt", userPh: "İstifadəçi Adı", passPh: "Şifrə", passConfPh: "Şifrə (Təkrar)", loginSub: "Giriş Yap ➔", regSub: "Qeydiyyatdan Keç ➔", noAcc: "Hesabın yoxdur?", hasAcc: "Artıq hesabın var?", regLnk: "Qeydiyyat", logLnk: "Giriş Yap", freeLeft: " Pulsuz Qaldı", vipTitle: "👑 VIP Pro Pakete Keç", vipDesc: "3 Pulsuz istifadə haqqınız bitdi! Limitsiz istifadə üçün Pro pakete keçin.", vipBuy: "💳 VIP Paket Al ($9.99)",
+            forgotLnk: "Şifrəni unutmusunuz?", googleBtn: "Google ilə Giriş Et", googleRegBtn: "Google ilə Qeydiyyat", or: "— və ya —", resetTitle: "Şifrəni Sıfırla", resetDesc: "Qeydiyyatdan keçdiyiniz E-poçt ünvanını daxil edin. Sənə təsdiq kodu göndərəcəyik.", resetEmailPh: "E-poçt ünvanınız", btnSendCode: "Təsdiq Kodu Göndər ➔", resetCodeDesc: "E-poçta göndərilən 6 rəqəmli kodu və yeni şifrənizi daxil edin:", resetCodePh: "6 rəqəmli kod (məs: 482910)", newPassPh: "Yeni Şifrə", newPassConfPh: "Yeni Şifrə (Təkrar)", btnUpdatePass: "Şifrəni Yenilə ➔", backLogin: "Girişə Qayıt", feat1: "⚡ Limitsiz AI Sorğuları", feat2: "🚀 Daha Sürətli Cavab", feat3: "🌐 Bütün Dillər Dəstəklənir", aboutTitle: "Haqqımızda", aboutBody: "AI Smart Mətn Studiyası müasir AI texnologiyaları ilə avtomatlaşdırılmış mətn emalını təmin edir.", termsTitle: "İstifadə Şərtləri", termsBody: "Bu saytdan istifadə etməklə mətnləri qanuni emal etməyə razılıq verirsiniz.", privacyTitle: "Məxfilik Siyasəti", privacyBody: "Məxfiliyiniz vacibdir. Məlumatlar müvəqqəti emal olunur və saxlanılmır.", linkAbout: "Haqqımızda", linkTerms: "İstifadə Şərtləri", linkPrivacy: "Məxfilik Siyasəti"
         },
         tr: {
-            title: "AI Akıllı Metin Stüdyosu", placeholder: "Metninizi buraya girin...", fix: "Dilbilgisini Düzelt", rephrase: "Yeniden Yaz (Profesyonel)", summarize: "Özetle", translate: "Çevir", btn: "Çalıştır", out: "Sonuç burada görünecek...", char: "Karakter: ", keyAlert: "Lütfen API Anahtarınızı girin!", textAlert: "Lütfen bir metin girin!", processing: "İşleniyor...",
-            authBtn: "Giriş Yap / Kayıt Ol", loginTitle: "Giriş Yap", regTitle: "Kayıt Ol (3 Ücretsiz Hak Kazan)", emailPh: "E-posta", userPh: "Kullanıcı Adı", passPh: "Şifre", passConfPh: "Şifre (Tekrar)", loginSub: "Giriş Yap ➔", regSub: "Kayıt Ol ➔", noAcc: "Hesabın yok mu?", hasAcc: "Zaten hesabın var mı?", regLnk: "Kayıt Ol", logLnk: "Giriş Yap", freeLeft: " Ücretsiz Kaldı",
-            vipTitle: "👑 VIP Pro Pakete Geç", vipDesc: "3 Ücretsiz kullanım hakkınız bitti! Sınırsız AI kullanımı için Pro pakete geçin.", vipBuy: "💳 VIP Paketi Satın Al ($9.99)"
+            title: "AI Akıllı Metin Stüdyosu", placeholder: "Metninizi buraya girin...", fix: "Dilbilgisini Düzelt", rephrase: "Yeniden Yaz (Profesyonel)", summarize: "Özetle", translate: "Çevir", btn: "Çalıştır", out: "Sonuç burada görünecek...", char: "Karakter: ", keyAlert: "Lütfen API Anahtarınızı girin!", textAlert: "Lütfen bir metin girin!", processing: "İşleniyor...", authBtn: "Giriş Yap / Kayıt Ol", loginTitle: "Giriş Yap", regTitle: "Kayıt Ol (3 Ücretsiz Hak Kazan)", emailPh: "E-posta", userPh: "Kullanıcı Adı", passPh: "Şifre", passConfPh: "Şifre (Tekrar)", loginSub: "Giriş Yap ➔", regSub: "Kayıt Ol ➔", noAcc: "Hesabın yok mu?", hasAcc: "Zaten hesabın var mı?", regLnk: "Kayıt Ol", logLnk: "Giriş Yap", freeLeft: " Ücretsiz Kaldı", vipTitle: "👑 VIP Pro Pakete Geç", vipDesc: "3 Ücretsiz kullanım hakkınız bitti! Sınırsız AI kullanımı için Pro pakete geçin.", vipBuy: "💳 VIP Paketi Satın Al ($9.99)",
+            forgotLnk: "Şifrenizi mi unuttunuz?", googleBtn: "Google ile Giriş Yap", googleRegBtn: "Google ile Kayıt Ol", or: "— veya —", resetTitle: "Şifreyi Sıfırla", resetDesc: "Kayıtlı e-posta adresinizi girin. Size bir doğrulama kodu göndereceğiz.", resetEmailPh: "E-posta adresiniz", btnSendCode: "Doğrulama Kodu Gönder ➔", resetCodeDesc: "E-postanıza gönderilen 6 haneli kodu ve yeni şifrenizi girin:", resetCodePh: "6 haneli kod (ör: 482910)", newPassPh: "Yeni Şifre", newPassConfPh: "Yeni Şifre (Tekrar)", btnUpdatePass: "Şifreyi Güncelle ➔", backLogin: "Girişe Dön", feat1: "⚡ Sınırsız Yapay Zeka Talebi", feat2: "🚀 Daha Hızlı Yanıt Süresi", feat3: "🌐 Tüm Diller Desteklenir", aboutTitle: "Hakkımızda", aboutBody: "AI Smart Metin Stüdyosu, gelişmiş AI teknolojisi ile otomatik metin işleme sunar.", termsTitle: "Kullanım Koşulları", termsBody: "Bu siteyi kullanarak metinleri yasalara uygun işlemeyi kabul etmiş olursunuz.", privacyTitle: "Gizlilik Politikası", privacyBody: "Gizliliğiniz önemlidir. Veriler geçici olarak işlenir ve saklanmaz.", linkAbout: "Hakkımızda", linkTerms: "Kullanım Koşulları", linkPrivacy: "Gizlilik Politikası"
         },
         ru: {
-            title: "AI Умная Текстовая Студия", placeholder: "Введите текст здесь...", fix: "Исправить грамматику", rephrase: "Перефразировать", summarize: "Сделать резюме", translate: "Перевести", btn: "Запустить AI", out: "Результат появится здесь...", char: "Символов: ", keyAlert: "Пожалуйста, введите API Key!", textAlert: "Пожалуйста, введите текст!", processing: "Обработка...",
-            authBtn: "Войти / Регистрация", loginTitle: "Вход", regTitle: "Регистрация (3 бесплатные попытки)", emailPh: "Эл. почта", userPh: "Имя пользователя", passPh: "Пароль", passConfPh: "Подтвердите пароль", loginSub: "Войти ➔", regSub: "Зарегистрироваться ➔", noAcc: "Нет аккаунта?", hasAcc: "Уже есть аккаунт?", regLnk: "Зарегистрироваться", logLnk: "Войти", freeLeft: " осталось",
-            vipTitle: "👑 Перейти на VIP Pro", vipDesc: "Ваши 3 бесплатные попытки закончились! Перейдите на Pro для безлимитного доступа.", vipBuy: "💳 Купить VIP Pro ($9.99)"
+            title: "AI Умная Текстовая Студия", placeholder: "Введите текст здесь...", fix: "Исправить грамматику", rephrase: "Перефразировать", summarize: "Сделать резюме", translate: "Перевести", btn: "Запустить AI", out: "Результат появится здесь...", char: "Символов: ", keyAlert: "Пожалуйста, введите API Key!", textAlert: "Пожалуйста, введите текст!", processing: "Обработка...", authBtn: "Войти / Регистрация", loginTitle: "Вход", regTitle: "Регистрация (3 бесплатные попытки)", emailPh: "Эл. почта", userPh: "Имя пользователя", passPh: "Пароль", passConfPh: "Подтвердите пароль", loginSub: "Войти ➔", regSub: "Зарегистрироваться ➔", noAcc: "Нет аккаунта?", hasAcc: "Уже есть аккаунт?", regLnk: "Зарегистрироваться", logLnk: "Войти", freeLeft: " осталось", vipTitle: "👑 Перейти на VIP Pro", vipDesc: "Ваши 3 бесплатные попытки закончились! Перейдите на Pro для безлимитного доступа.", vipBuy: "💳 Купить VIP Pro ($9.99)",
+            forgotLnk: "Забыли пароль?", googleBtn: "Войти через Google", googleRegBtn: "Регистрация через Google", or: "— или —", resetTitle: "Сброс пароля", resetDesc: "Введите ваш зарегистрированный email. Мы отправим вам код подтверждения.", resetEmailPh: "Ваш Email адрес", btnSendCode: "Отправить код ➔", resetCodeDesc: "Введите 6-значный код из письма и новый пароль:", resetCodePh: "6-значный код (напр. 482910)", newPassPh: "Новый пароль", newPassConfPh: "Подтвердите новый пароль", btnUpdatePass: "Обновить пароль ➔", backLogin: "Назад ко входу", feat1: "⚡ Безлимитные AI запросы", feat2: "🚀 Высокая скорость ответа", feat3: "🌐 Поддержка всех языков", aboutTitle: "О нас", aboutBody: "AI Smart Text Studio предоставляет автоматическую обработку текста на базе ИИ.", termsTitle: "Условия использования", termsBody: "Используя этот сайт, вы соглашаетесь соблюдать правила обработки данных.", privacyTitle: "Политика конфиденциальности", privacyBody: "Конфиденциальность важна. Данные обрабатываются временно и не сохраняются.", linkAbout: "О нас", linkTerms: "Условия использования", linkPrivacy: "Конфиденциальность"
         },
         ar: {
-            title: "استوديو النصوص الذكي", placeholder: "أدخل النص هنا...", fix: "تصحيح القواعد", rephrase: "إعادة صياغة احترافية", summarize: "تلخيص", translate: "ترجمة", btn: "تشغيل الذكاء الاصطناعي", out: "ستظهر النتيجة هنا...", char: "الحروف: ", keyAlert: "يرجى إدخال مفتاح API!", textAlert: "يرجى كتابة نص!", processing: "جاري المعالجة...",
-            authBtn: "تسجيل الدخول / تسجيل", loginTitle: "تسجيل الدخول", regTitle: "تسجيل (احصل على 3 رصيد مجاني)", emailPh: "البريد الإلكتروني", userPh: "اسم المستخدم", passPh: "كلمة المرور", passConfPh: "تأكيد كلمة المرور", loginSub: "دخول ➔", regSub: "تسجيل ➔", noAcc: "ليس لديك حساب؟", hasAcc: "لديك حساب بالفعل؟", regLnk: "تسجيل", logLnk: "دخول", freeLeft: " متبقي مجاناً",
-            vipTitle: "👑 الترقية إلى VIP Pro", vipDesc: "لقد انتهت رصيدك المجاني (3)! ترقية إلى Pro للاستخدام غير المحدود.", vipBuy: "💳 شراء VIP Pro ($9.99)"
+            title: "استوديو النصوص الذكي", placeholder: "أدخل النص هنا...", fix: "تصحيح القواعد", rephrase: "إعادة صياغة احترافية", summarize: "تلخيص", translate: "ترجمة", btn: "تشغيل الذكاء الاصطناعي", out: "ستظهر النتيجة هنا...", char: "الحروف: ", keyAlert: "يرجى إدخال مفتاح API!", textAlert: "يرجى كتابة نص!", processing: "جاري المعالجة...", authBtn: "تسجيل الدخول / تسجيل", loginTitle: "تسجيل الدخول", regTitle: "تسجيل (احصل على 3 رصيد مجاني)", emailPh: "البريد الإلكتروني", userPh: "اسم المستخدم", passPh: "كلمة المرور", passConfPh: "تأكيد كلمة المرور", loginSub: "دخول ➔", regSub: "تسجيل ➔", noAcc: "ليس لديك حساب؟", hasAcc: "لديك حساب بالفعل؟", regLnk: "تسجيل", logLnk: "دخول", freeLeft: " متبقي مجاناً", vipTitle: "👑 الترقية إلى VIP Pro", vipDesc: "لقد انتهت رصيدك المجاني (3)! ترقية إلى Pro للاستخدام غير المحدود.", vipBuy: "💳 شراء VIP Pro ($9.99)",
+            forgotLnk: "هل نسيت كلمة السر؟", googleBtn: "الدخول بواسطة Google", googleRegBtn: "التسجيل بواسطة Google", or: "— أو —", resetTitle: "إعادة ضبط كلمة المرور", resetDesc: "أدخل بريدك الإلكتروني المسجل. سنرسل لك رمز التحقق.", resetEmailPh: "عنوان بريدك الإلكتروني", btnSendCode: "إرسال رمز التحقق ➔", resetCodeDesc: "أدخل الرمز المكون من 6 أرقام وكلمة المرور الجديدة:", resetCodePh: "رمز من 6 أرقام (مثال 482910)", newPassPh: "كلمة المرور الجديدة", newPassConfPh: "تأكيد كلمة المرور الجديدة", btnUpdatePass: "تحديث كلمة المرور ➔", backLogin: "العودة لتسجيل الدخول", feat1: "⚡ طلبات ذكاء اصطناعي غير محدودة", feat2: "🚀 سرعة استجابة فائقة", feat3: "🌐 يدعم جميع اللغات", aboutTitle: "من نحن", aboutBody: "يقدم استوديو النصوص الذكي معالجة نصوص آلية مدعومة بالذكاء الاصطناعي.", termsTitle: "شروط الخدمة", termsBody: "باستخدام هذا الموقع ، فإنك توافق على معالجة النصوص بشكل قانوني.", privacyTitle: "سياسة الخصوصية", privacyBody: "خصوصيتك مهمه. يتم معالجة البيانات مؤقتا ولا يتم حفظها.", linkAbout: "من نحن", linkTerms: "شروط الخدمة", linkPrivacy: "سياسة الخصوصية"
         }
     };
 
@@ -287,9 +319,39 @@
         document.getElementById('lnk-reg').innerText = t.regLnk;
         document.getElementById('lnk-log').innerText = t.logLnk;
 
+        document.getElementById('lnk-forgot').innerText = t.forgotLnk;
+        document.querySelectorAll('.lbl-btn-google').forEach(el => el.innerText = t.googleBtn);
+        document.querySelectorAll('.lbl-btn-google-reg').forEach(el => el.innerText = t.googleRegBtn);
+        document.querySelectorAll('.lbl-or').forEach(el => el.innerText = t.or);
+
+        document.getElementById('lbl-reset-title').innerText = t.resetTitle;
+        document.getElementById('lbl-reset-desc').innerText = t.resetDesc;
+        document.getElementById('resetEmail').placeholder = t.resetEmailPh;
+        document.getElementById('btn-send-code').innerText = t.btnSendCode;
+        document.getElementById('lbl-reset-code-desc').innerText = t.resetCodeDesc;
+        document.getElementById('resetCode').placeholder = t.resetCodePh;
+        document.getElementById('newPass').placeholder = t.newPassPh;
+        document.getElementById('newPassConfirm').placeholder = t.newPassConfPh;
+        document.getElementById('btn-update-pass').innerText = t.btnUpdatePass;
+        document.getElementById('lnk-back-login').innerText = t.backLogin;
+
         document.getElementById('lbl-vip-title').innerText = t.vipTitle;
         document.getElementById('lbl-vip-desc').innerText = t.vipDesc;
         document.getElementById('btn-vip-buy').innerText = t.vipBuy;
+        document.getElementById('lbl-feat-1').innerText = t.feat1;
+        document.getElementById('lbl-feat-2').innerText = t.feat2;
+        document.getElementById('lbl-feat-3').innerText = t.feat3;
+
+        document.getElementById('lbl-about-title').innerText = t.aboutTitle;
+        document.getElementById('lbl-about-body').innerText = t.aboutBody;
+        document.getElementById('lbl-terms-title').innerText = t.termsTitle;
+        document.getElementById('lbl-terms-body').innerText = t.termsBody;
+        document.getElementById('lbl-privacy-title').innerText = t.privacyTitle;
+        document.getElementById('lbl-privacy-body').innerText = t.privacyBody;
+
+        document.getElementById('link-about').innerText = t.linkAbout;
+        document.getElementById('link-terms').innerText = t.linkTerms;
+        document.getElementById('link-privacy').innerText = t.linkPrivacy;
 
         updateCharCount();
         updateCreditUI();
@@ -333,21 +395,56 @@
         }
     }
 
+    function handleGoogleAuth() {
+        alert("Google Authentication Firebase qoşulduqdan sonra tam aktiv olacaq.");
+    }
+
+    function sendResetCode() {
+        const email = document.getElementById('resetEmail').value.trim();
+        if (!validateEmail(email)) return alert("Keçərli bir E-poçt ünvanı yazın!");
+
+        generatedResetCode = Math.floor(100000 + Math.random() * 900000);
+        
+        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+            to_email: email,
+            reset_code: generatedResetCode
+        }).then(function() {
+            alert("Təsdiq kodu E-poçt ünvanınıza göndərildi!");
+            document.getElementById('reset-step-1').style.display = 'none';
+            document.getElementById('reset-step-2').style.display = 'block';
+        }, function(err) {
+            alert("Kod göndərilərkən xəta baş verdi. Lütfən EmailJS parametrlərini yoxlayın.");
+        });
+    }
+
+    function confirmNewPassword() {
+        const code = document.getElementById('resetCode').value.trim();
+        const p1 = document.getElementById('newPass').value;
+        const p2 = document.getElementById('newPassConfirm').value;
+
+        if (code != generatedResetCode) return alert("Daxil etdiyiniz təsdiq kodu yanlışdır!");
+        if (!p1 || p1.length < 6) return alert("Şifrə ən azı 6 simvol olmalıdır!");
+        if (p1 !== p2) return alert("Şifrələr eyni değil!");
+
+        alert("Şifrəniz uğurla yeniləndi! Yeni şifrənizlə giriş edə bilərsiniz.");
+        switchModal('modal-reset', 'modal-login');
+    }
+
     function handleRegister() {
         const email = document.getElementById('regEmail').value.trim();
         const user = document.getElementById('regUser').value.trim();
         const pass = document.getElementById('regPass').value;
         const passConf = document.getElementById('regPassConfirm').value;
 
-        if (!email || !user || !pass) return alert('Lütfen tüm alanları doldurun!');
-        if (!validateEmail(email)) return alert('Lütfen geçerli bir e-posta adresi girin!');
-        if (user.length < 3) return alert('Kullanıcı adı en az 3 karakter olmalıdır!');
-        if (pass.length < 6) return alert('Şifre en az 6 karakter olmalıdır!');
-        if (pass !== passConf) return alert('Şifreler eşleşmiyor!');
+        if (!email || !user || !pass) return alert('Düzgün doldurun!');
+        if (!validateEmail(email)) return alert('Keçərli bir E-poçt ünvanı daxil edin!');
+        if (pass.length < 6) return alert('Şifrə ən azı 6 simvol olmalıdır!');
+        if (pass !== passConf) return alert('Şifrələr üst-üstə düşmür!');
 
         currentUser = user;
         credits = 3;
         isVip = false;
+
         onLoginSuccess();
         closeModal('modal-register');
     }
@@ -356,8 +453,8 @@
         const email = document.getElementById('loginEmail').value.trim();
         const pass = document.getElementById('loginPass').value;
 
-        if (!email || !pass) return alert('Lütfen tüm alanları doldurun!');
-        if (!validateEmail(email)) return alert('Lütfen geçerli bir e-posta adresi girin!');
+        if (!email || !pass) return alert('Düzgün doldurun!');
+        if (!validateEmail(email)) return alert('Keçərli bir E-poçt daxil edin!');
 
         currentUser = email.split('@')[0];
         credits = 3;
@@ -382,7 +479,7 @@
     }
 
     function redirectToPayment() {
-        alert("Ödeme sayfasına yönlendiriliyorsunuz...");
+        alert("Payment gateway loading...");
     }
 
     async function processAI() {
