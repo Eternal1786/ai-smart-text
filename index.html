@@ -495,40 +495,85 @@
         switchModal('modal-reset', 'modal-login');
     }
 
-    function handleRegister() {
-        const email = document.getElementById('regEmail').value.trim();
-        const user = document.getElementById('regUser').value.trim();
-        const pass = document.getElementById('regPass').value;
-        const passConf = document.getElementById('regPassConfirm').value;
-        
-        if (!email || !user || !pass) return alert('Düzgün doldurun!');
-        if (!validateEmail(email)) return alert('Keçərli bir E-poçt ünvanı daxil edin!');
-        if (pass.length < 6) return alert('Şifrə ən azı 6 simvol olmalıdır!');
-        if (pass !== passConf) return alert('Şifrələr üst-üstə düşmür!');
+   // HƏQİQİ QEYDİYYAT + E-POÇT TƏSDİQLƏMƏSİ
+function handleRegister() {
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const passConfirm = document.getElementById('regPassConfirm').value;
 
-        currentUser = user;
-        credits = 3;
-        isVip = false;
+  if (!email || !pass) {
+    alert("Zəhmət olmasa bütün xanaları doldurun!");
+    return;
+  }
 
-        onLoginSuccess();
-        sendWelcomeEmail(email);
-        closeModal('modal-register');
-    }
+  if (pass !== passConfirm) {
+    alert("Şifrələr üst-üstə düşmür!");
+    return;
+  }
 
-    function handleLogin() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const pass = document.getElementById('loginPass').value;
+  // Firebase-də istifadəçi yaradır
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+      const user = userCredential.user;
 
-        if (!email || !pass) return alert('Düzgün doldurun!');
-        if (!validateEmail(email)) return alert('Keçərli bir E-poçt daxil edin!');
+      // Həqiqi e-poçta təsdiq linki göndərilir
+      user.sendEmailVerification()
+        .then(() => {
+          auth.signOut(); // Təsdiqləməyənə qədər sistemdən çıxarırıq
+          closeModal('modal-register');
+          alert("Qeydiyyat uğurla tamamlandı! Zəhmət olmasa " + email + " poçtunuza daxil olub gələn təsdiq linkinə klikləyin.");
+        })
+        .catch((err) => {
+          console.error("Verification error:", err);
+          alert("Təsdiq məktubu göndərilərkən xəta baş verdi.");
+        });
+    })
+    .catch((error) => {
+      console.error("Register Error:", error);
+      if (error.code === 'auth/email-already-in-use') {
+        alert("Bu e-poçt ünvanı artıq qeydiyyatdan keçib!");
+      } else if (error.code === 'auth/weak-password') {
+        alert("Şifrə ən azı 6 simvol olmalıdır!");
+      } else {
+        alert("Qeydiyyat xətası: " + error.message);
+      }
+    });
+}
 
-        currentUser = email.split('@')[0];
-        credits = 3;
-        isVip = false;
-        onLoginSuccess();
-        closeModal('modal-login');
-    }
+// HƏQİQİ GİRİŞ (YALNIZ TƏSDİQLƏNMİŞ GMAİL İLƏ)
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
 
+  if (!email || !pass) {
+    alert("Zəhmət olmasa e-poçt və şifrəni daxil edin!");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+      const user = userCredential.user;
+
+      // E-poçtun təsdiqlənib-təsdiqlənmədiyini yoxlayır
+      if (!user.emailVerified) {
+        auth.signOut();
+        alert("Hesabınız təsdiqlənməyib! Zəhmət olmasa " + user.email + " e-poçtunuza daxil olub gələn linkə daxil olun.");
+        return;
+      }
+
+      currentUser = user.email.split('@')[0];
+      credits = 3;
+      isVip = false;
+
+      onLoginSuccess();
+      closeModal('modal-login');
+      alert("Uğurla daxil oldunuz: " + currentUser);
+    })
+    .catch((error) => {
+      console.error("Login Error:", error);
+      alert("E-poçt və ya şifrə yanlışdır!");
+    });
+}
     function onLoginSuccess() {
         document.getElementById('authBtn').style.display = 'none';
         document.getElementById('userInfo').style.display = 'flex';
