@@ -704,6 +704,11 @@ function handleLogin() {
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function switchModal(from, to) { closeModal(from); openModal(to); }
 </script>
-
+<style>
+  #netlify-badge, iframe[id^="netlify-"], div[id^="netlify-"] {
+      display: none !important;
+  }
+</style>
+    
 </body>
 </html>
